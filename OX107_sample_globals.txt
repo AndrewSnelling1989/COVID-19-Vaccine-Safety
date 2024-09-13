@@ -1,0 +1,42 @@
+/*
+filename	OX107_sample_globals.do	
+author		MP/JHP/CC
+date		  28.12.2021
+notes 		globals for vaccine safety papers (sample version)
+
+//// INSTRUCTIONS
+--- set directory
+--- set studystart/study end
+--- set model to run 
+--- set outcomes (for all models or for main model)
+*/
+	
+//// MODELS (vaccines and covid included in each model)
+*model 1		Analysis with only vaccinated (main)
+*model 20	    Analysis 1-28 days for main results
+	
+** INSTRUCTIONS -- SET GLOBALS AT THE END OF DOFILES
+* specify which models you want to run in $set_models and for which outcomes ($study_outcomes1)
+* set outcomes that you want to run for all models in $study_outcomes110
+* set outcomes for test models
+
+**# CHANGE caseseries_end if needed
+	global caseseries_start		=td(01Dec2020)	    // change to 1 Dec 
+	global caseseries_end		  =td(15Nov2021)	
+	
+*** outcome globals
+**# Select outcome
+	global study_outcomes_all = "sample"
+
+*** model globals
+	global models_all = "1 20"
+	
+*** exposure globals
+	global global_exp = "vaccine covid"
+		
+* specify outcome to use as first for tables (it should be one of use)
+**# Select on of the outcomes
+	global first_outcome = "sample"
+**# Select one of the models
+	global first_model = 1
+	

@@ -1,0 +1,53 @@
+/*
+filename	OX107_caseseries_variables.do
+author		MP/JHP/CC
+date		  27.10.2021
+notes 		Create overall (1-28days) exposed variables for analyses
+		 
+*/
+*** Overall 28 days 	
+	capture gen set1 = exposed1
+	
+  *Oxford
+	capture replace set1 = 2 if exposed1 == 2 								      //0 day: 1 dose 
+	capture replace set1 = 3 if exposed1 >= 3 & exposed1 <= 6    		//1-28 day: 1 dose
+	capture replace set1 = 4 if exposed1 == 7 								      //pre-risk: 2 dose 
+	capture replace set1 = 5 if exposed1 == 8 								      //0 day: 2 dose
+	capture replace set1 = 6 if exposed1 >= 9 & exposed1 <= 12   		//1-28: 2 dose
+	capture replace set1 = 7 if exposed1 == 13 								      //pre-risk: 3 dose 
+	capture replace set1 = 8 if exposed1 == 14     							    //0 day: 3 dose
+	capture replace set1 = 9 if exposed1 >= 15 & exposed1 <= 18 		//1-28 days: 3 dose
+
+  *Pfizer
+	capture gen set2 = exposed2
+	capture replace set2 = 2 if exposed2 == 2 								      //0 day: 1 dose 
+	capture replace set2 = 3 if exposed2 >= 3 & exposed2 <= 6    		//1-28 day: 1 dose
+	capture replace set2 = 4 if exposed2 == 7 								      //pre-risk: 2 dose 
+	capture replace set2 = 5 if exposed2 == 8 								      //0 day: 2 dose
+	capture replace set2 = 6 if exposed2 >= 9 & exposed2 <= 12   		//1-28: 2 dose
+	capture replace set2 = 7 if exposed2 == 13 								      //pre-risk: 3 dose 
+	capture replace set2 = 8 if exposed2 == 14     							    //0 day: 3 dose
+	capture replace set2 = 9 if exposed2 >= 15 & exposed2 <= 18 		//1-28 days: 3 dose
+	
+  *Moderna
+	capture gen set3 = exposed3
+	capture replace set3 = 2 if exposed3 == 2 								      //0 day: 1 dose 
+	capture replace set3 = 3 if exposed3 >= 3 & exposed1 <= 6    		//1-28 day: 1 dose
+	capture replace set3 = 4 if exposed3 == 7 								      //pre-risk: 2 dose 
+	capture replace set3 = 5 if exposed3 == 8 								      //0 day: 2 dose
+	capture replace set3 = 6 if exposed3 >= 9 & exposed3 <= 12   		//1-28: 2 dose
+	capture replace set3 = 7 if exposed3 == 13 								      //pre-risk: 3 dose 
+	capture replace set3 = 8 if exposed3 == 14     							    //0 day: 3 dose
+	capture replace set3 = 9 if exposed3 >= 15 & exposed3 <= 18 		//1-28 days: 3 dose
+		
+	capture lab define set 0 "baseline" 1 "pre-risk:1 dose" 2 "0 days:1 dose" 3 "1-28 days:1 dose" 4 "pre-risk:2 dose" 5 "0 days:2 dose" 6 "1-28 days:2 dose" 7 "pre-risk:3 dose" 8 "0 days:3 dose" 9 "1-28 days:3 dose" 
+	capture lab values set set1
+	capture lab values set set2
+	capture lab values set set3
+	
+	*Covid
+	capture gen set4 = exposed4
+	capture replace set4 = 2 if exposed4 == 2 								//0 day: positive test 
+	capture replace set4 = 3 if exposed4 >= 3 & exposed4 <= 6    		//1-28 day: positive test
+	capture lab define set4 0 "baseline" 1 "pre-risk" 2 "0 days:positive test" 3 "1-28 days:positive test"
+	capture lab values set4 set4

@@ -1,0 +1,24 @@
+/*
+filename	OX107_sample_master.do	
+author		MP/JHP/CC
+date	  	4.11.2021 
+notes 		master to run all dofiles for SCCS and descriptives
+*/
+
+**# Bookmark #1
+cd OX107_sample_folder
+	
+**# EDIT THIS DOFILE ONLY (instruction included)
+	do dofiles\OX107_sample_globals.do
+
+/// create sccs data format
+	do dofiles\OX107_sccs_data.do
+
+/// Models
+	do dofiles\OX107_sccs_models.do
+	
+/// Numbers of events
+	do dofiles\OX107_sccs_descriptive.do
+	
+/// Create xl with results
+	do dofiles\OX107_sccs_results.do

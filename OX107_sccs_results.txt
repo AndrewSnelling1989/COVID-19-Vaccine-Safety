@@ -1,0 +1,144 @@
+
+/*
+filename 	OX107_results_sccs.do
+author 		JHC/MP/CC
+date 		5.1.2022
+input 		tables\nims_table3
+		models\OX107_cs_model_`m'_`y'
+tables		tables\OX107_sccs_results
+*/
+
+** Defined in OX107_sample_globals
+local first_outcome = "$first_outcome"
+local first_model = "$first_model"
+
+	foreach y in $study_outcomes_all {
+	foreach m in $models_all {
+	
+	capture use models\OX107_cs_model_`m'_`y'_3dose, clear
+	
+	if _rc != 0 {
+		continue
+	}
+	
+	gen outcome = "`y'"
+	gen model = `m'
+	gen str irr_95 = string(exp(estimate), "%10.2f") + " (" + string(exp(min95), "%10.2f") + ", " + string(exp(max95), "%10.2f") + ")" 
+	gen irr=exp(estimate)
+	gen min =exp(min95)
+	gen max =exp(max95)
+	drop est min95 max95 parmseq
+		
+	gen lab = .
+	gen exposed = .	
+	
+	foreach x in 1 2 3 4 {
+	replace lab	= 0 if parm == "0b.exposed`x'" | parm == "0b.set`x'" | parm == "0b.group1`x'" | parm =="0b.group2`x'"
+	
+	replace exposed	= `x' if parm == "0b.exposed`x'" | parm == "0b.set`x'" | parm == "0b.group1`x'" | parm=="0b.group2`x'"
+
+	foreach a in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 {
+	replace lab =`a' if parm == "`a'.exposed`x'" | parm == "`a'.set`x'" | parm == "`a'.group1`x'" | parm == "`a'.group2`x'"
+	
+	replace exposed = `x' if parm == "`a'.exposed`x'" | parm == "`a'.set`x'" | parm == "`a'.group1`x'" | parm == "`a'.group2`x'"
+	}
+   }
+
+****** generate variable label risk period
+	gen label = ""
+		if `m' == 1 {
+			replace label = "baseline" if lab == 0
+			replace label = "pre-risk: 1dose" if lab == 1
+			replace label = "0 day: 1dose" if lab == 2
+			replace label = "1-7 days: 1dose" if lab == 3
+			replace label = "8-14 days: 1dose" if lab == 4
+			replace label = "15-21 days: 1dose" if lab == 5
+			replace label = "22-28 days: 1dose" if lab == 6
+			replace label = "pre-risk: 2dose" if lab == 7
+			replace label = "0 day: 2dose" if lab == 8
+			replace label = "1-7 days: 2dose" if lab == 9
+			replace label = "8-14 days: 2dose" if lab == 10
+			replace label = "15-21 days: 2dose" if lab == 11
+			replace label = "22-28 days: 2dose" if lab == 12
+			replace label = "pre-risk: 3dose" if lab == 13
+			replace label = "0 day: 3dose" if lab == 14
+			replace label = "1-7 days: 3dose" if lab == 15
+			replace label = "8-14 days: 3dose" if lab == 16
+			replace label = "15-21 days: 3dose" if lab == 17
+			replace label = "22-28 days: 3dose" if lab == 18
+			}
+
+		if `m' == 20 {
+			replace label = "baseline" if lab == 0
+			replace label = "pre-risk: 1dose" if lab == 1
+			replace label = "0 day: 1dose" if lab == 2
+			replace label = "1-28 days:1 dose" if lab == 3
+			replace label = "pre-risk: 1dose" if lab == 4
+			replace label = "0 days:2 dose" if lab == 5
+			replace label = "1-28 days:2 dose" if lab == 6
+			replace label = "pre-risk: 3dose" if lab == 7
+			replace label = "0 days:3 dose" if lab == 8
+			replace label = "1-28 days:3 dose" if lab == 9
+		}
+
+****** labels exposed 
+	lab define exposed 1 "Oxford" 2 "Pfizer" 3 "Moderna" 4 "SARS-Cov-2" 5 "time period" 
+	lab values exposed exposed
+	
+****** tidy data
+	order outcome model exposed label irr_95 irr min max p lab 
+	drop if exposed == .
+
+*** merge with count
+	capture merge 1:1 outcome exposed lab using "tables\event_`y'_`m'", nogen keep (master match)
+	if _rc != 0 {
+		continue
+		}
+
+	order outcome model exposed label nevents irr_95 irr min max p lab 
+	replace nevents=0 if exposed<6 & nevents==.
+	gen suppress=1 if nevents<5 
+		
+	save tables\OX107_cs_model_`y'_`m'_irr_all,replace
+}
+}
+	
+
+*** all in one table
+use tables\OX107_cs_model_`first_outcome'_`first_model'_irr_all,clear
+
+gen dropit=1
+	
+	foreach m in $models_all {
+		foreach y in $study_outcomes_all {
+			 append using tables\OX107_cs_model_`y'_`m'_irr_all
+			if _rc != 0 {
+					continue
+				}
+	}
+	}
+	
+	drop if dropit==1
+	drop dropit
+	
+save tables\model_irr_all,replace
+
+
+
+*** save excel	
+use tables\OX107_sccs_results, clear
+export excel using "xl\OX107_sccs_results.xlsx", sheet(irr, replace)  firstrow(variables)
+	
+
+
+*** tidy up
+	local files1: dir "tables\" files "event_*.dta"
+	local files2: dir "tables\" files "prsyrs_*.dta"
+	local files3: dir "tables\" files "nims_*.dta"
+	cd "tables\"
+
+	foreach x in `files1' `files2' `files3'  {
+		rm "`x'"
+	}
+	
+	cd ..

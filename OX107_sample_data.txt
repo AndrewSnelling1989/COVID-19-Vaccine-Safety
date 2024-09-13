@@ -1,0 +1,54 @@
+/*
+filename	OX107_simulated_data.do
+author		MP
+date		  06.01.2022
+notes 		import simulated data in Stata format 
+*/
+
+import delimited "OX107_sample\sample_sccs.csv", clear 
+
+rename vaccine_date1 vaccine_date1_str
+rename vaccine_date2 vaccine_date2_str
+rename vaccine_date3 vaccine_date3_str
+rename date_positive date_positive_str
+rename sample_date sample_date_str
+rename onsdateofdeath onsdateofdeath_str
+
+gen vaccine_date1 = date(vaccine_date1_str, "DMY")
+gen vaccine_date2 = date(vaccine_date2_str, "DMY")
+gen vaccine_date3 = date(vaccine_date3_str, "DMY")
+gen date_positive = date(date_positive_str, "DMY")
+gen sample_date = date(sample_date_str, "DMY")
+gen onsdateofdeath = date(onsdateofdeath_str, "DMY")
+
+replace vaccine_type1 = "" if vaccine_type1 == "NA"
+replace vaccine_type2 = "" if vaccine_type2 == "NA"
+replace vaccine_type3 = "" if vaccine_type3 == "NA"
+
+rename vaccine_type1 vaccine_type1_str
+rename vaccine_type2 vaccine_type2_str
+rename vaccine_type3 vaccine_type3_str
+
+gen vaccine_type1 = 1 if vaccine_type1_str == "Oxford"
+replace vaccine_type1 = 2 if vaccine_type1_str == "Pfizer"
+replace vaccine_type1 = 3 if vaccine_type1_str == "Moderna"
+
+gen vaccine_type2 = 1 if vaccine_type2_str == "Oxford"
+replace vaccine_type2 = 2 if vaccine_type2_str == "Pfizer"
+replace vaccine_type2 = 3 if vaccine_type2_str == "Moderna"
+
+gen vaccine_type3 = 1 if vaccine_type3_str == "Oxford"
+replace vaccine_type3 = 2 if vaccine_type3_str == "Pfizer"
+replace vaccine_type3 = 3 if vaccine_type3_str == "Moderna"
+
+drop *_str
+
+label define vaccine_type 1 "Oxford" 2 "Pfizer" 3 "Moderna" 
+label values vaccine_type1 vaccine_type
+label values vaccine_type2 vaccine_type
+label values vaccine_type3 vaccine_type
+
+
+format vaccine_date* date_positive sample_date onsdateofdeath %td
+
+save "OX107_sample\caseseries\OX107_caseseries_nims4_sample_3dose", replace 

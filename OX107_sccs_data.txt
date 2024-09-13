@@ -1,0 +1,329 @@
+/*
+filename	OX107_caseseries_nims2.do
+author		JHC/CC/MP
+date		  02.05.2021 
+notes 		format data for SCCS design /// updated to second and third dose
+notes		  update to sample data with study end to 15 November 2021
+ 
+Input data caseseries\OX107_caseseries_nims4_`y' - one row per patient for all those with outcome (including prior)
+Output data caseseries\OX107_caseseries_nims5_`y' - one row per patient per time period of exposure	
+*/
+	
+foreach y in $study_outcomes_all {
+
+use caseseries\OX107_caseseries_nims4_`y'_3dose,clear
+
+*keep vaccinated individuals with outcome in the study period
+keep if vaccine_date1 != .
+keep if `y'_period1==1						
+
+*ensure locals reset or else ageband doesnt work in a loop
+	local a=.
+	local b=.
+	local c=.
+	local d=.
+	local nmiss=.
+	local nchange=.
+	local nmonth=.
+	
+*generate cut points for start and end of observation period
+	gen cutp1 = $caseseries_start - 1 
+	gen cutp2 = $caseseries_end 	
+
+	gen cutp3  = td(08Dec2020)-1						
+	gen cutp4  = td(22Dec2020)-1					
+	gen cutp5  = td(05Jan2021)-1						
+	gen cutp6  = td(19Jan2021)-1						
+	gen cutp7  = td(02Feb2021)-1					
+	gen cutp8  = td(16Feb2021)-1			
+	gen cutp9  = td(02Mar2021)-1
+	gen cutp10 = td(16Mar2021)-1	
+	gen cutp11 = td(30Mar2021)-1
+	gen cutp12 = td(13April2021)-1
+	gen cutp13 = td(27April2021)-1
+	gen cutp14 = td(11May2021)-1
+	gen cutp15 = td(25May2021)-1
+	gen cutp16 = td(08Jun2021)-1
+	gen cutp17 = td(22Jun2021)-1
+	gen cutp18 = td(06Jul2021)-1
+	gen cutp19 = td(20Jul2021)-1  
+	gen cutp20 = td(03Aug2021)-1
+	gen cutp21 = td(17Aug2021)-1
+	gen cutp22 = td(31Aug2021)-1
+	gen cutp23 = td(14Sep2021)-1  
+	gen cutp24 = td(28Sep2021)-1
+	gen cutp25 = td(12Oct2021)-1
+	gen cutp26 = td(26Oct2021)-1
+	gen cutp27 = td(9Nov2021)-1
+
+************************************************
+* Define pre-specified treatment cut-points
+************************************************
+
+* Vaccine first dose (Oxford)
+	gen cutp28 = vaccine_date1 - 29	if vaccine_type1 == 1	
+	gen cutp29 = vaccine_date1 - 1 if vaccine_type1 == 1
+	gen cutp30 = vaccine_date1 if vaccine_type1 == 1
+	gen cutp31 = vaccine_date1 + 7 if vaccine_type1 == 1
+	gen cutp32 = vaccine_date1 + 14	if vaccine_type1 == 1
+	gen cutp33 = vaccine_date1 + 21	if vaccine_type1 == 1
+	gen cutp34 = vaccine_date1 + 28	if vaccine_type1 == 1	
+	
+* Vaccine second dose (Oxford)	
+	gen cutp35 = vaccine_date2 - 29 if vaccine_type2 == 1
+	gen cutp36 = vaccine_date2 - 1 if vaccine_type2 == 1		   
+	gen cutp37 = vaccine_date2  if vaccine_type2 == 1
+	gen cutp38 = vaccine_date2 + 7 if vaccine_type2 == 1
+	gen cutp39 = vaccine_date2 + 14	if vaccine_type2 == 1
+	gen cutp40 = vaccine_date2 + 21	if vaccine_type2 == 1
+	gen cutp41 = vaccine_date2 + 28 if vaccine_type2 == 1
+
+* Vaccine third dose  (Oxford)
+	gen cutp42 = vaccine_date3 - 29  if vaccine_type3 == 1
+	gen cutp43 = vaccine_date3 - 1 if vaccine_type3 == 1		   
+	gen cutp44 = vaccine_date3 if vaccine_type3 == 1    
+	gen cutp45 = vaccine_date3 + 7 if vaccine_type3 == 1
+	gen cutp46 = vaccine_date3 + 14	if vaccine_type3 == 1
+	gen cutp47 = vaccine_date3 + 21	if vaccine_type3 == 1
+	gen cutp48 = vaccine_date3 + 28	if vaccine_type3 == 1
+
+	* Vaccine first dose (Pfizer)
+	gen cutp49 = vaccine_date1 - 29	if vaccine_type1 == 2
+	gen cutp50 = vaccine_date1 - 1 if vaccine_type1 == 2
+	gen cutp51 = vaccine_date1 if vaccine_type1 == 2
+	gen cutp52 = vaccine_date1 + 7 if vaccine_type1 == 2
+	gen cutp53 = vaccine_date1 + 14	if vaccine_type1 == 2
+	gen cutp54 = vaccine_date1 + 21	if vaccine_type1 == 2
+	gen cutp55 = vaccine_date1 + 28	if vaccine_type1 == 2
+
+* Vaccine second dose (Pfizer)	
+	gen cutp56 = vaccine_date2 - 29 if vaccine_type2 == 2
+	gen cutp57 = vaccine_date2 - 1 if vaccine_type2 == 2	   
+	gen cutp58 = vaccine_date2 if vaccine_type2 == 2
+	gen cutp59 = vaccine_date2 + 7 if vaccine_type2 == 2
+	gen cutp60 = vaccine_date2 + 14	if vaccine_type2 == 2
+	gen cutp61 = vaccine_date2 + 21	if vaccine_type2 == 2
+	gen cutp62 = vaccine_date2 + 28 if vaccine_type2 == 2
+
+* Vaccine third dose  (Pfizer)
+	gen cutp63 = vaccine_date3 - 29 if vaccine_type3 == 2
+	gen cutp64 = vaccine_date3 - 1 if vaccine_type3 == 2	   
+	gen cutp65 = vaccine_date3 if vaccine_type3 == 2
+	gen cutp66 = vaccine_date3 + 7 if vaccine_type3 == 2
+	gen cutp67 = vaccine_date3 + 14	if vaccine_type3 == 2
+	gen cutp68 = vaccine_date3 + 21	if vaccine_type3 == 2
+	gen cutp69 = vaccine_date3 + 28	if vaccine_type3 == 2
+	
+* Vaccine first dose (Moderna)
+	gen cutp70 = vaccine_date1 - 29	if vaccine_type1 == 3
+	gen cutp71 = vaccine_date1 - 1 if vaccine_type1 == 3
+	gen cutp72 = vaccine_date1 if vaccine_type1 == 3
+	gen cutp73 = vaccine_date1 + 7 if vaccine_type1 == 3
+	gen cutp74 = vaccine_date1 + 14	if vaccine_type1 == 3
+	gen cutp75 = vaccine_date1 + 21	if vaccine_type1 == 3
+	gen cutp76 = vaccine_date1 + 28	if vaccine_type1 == 3
+
+* Vaccine second dose (Moderna)	
+	gen cutp77 = vaccine_date2 - 29 if vaccine_type2 == 3
+	gen cutp78 = vaccine_date2 - 1 if vaccine_type2 == 3   
+	gen cutp79 = vaccine_date2  if vaccine_type2 == 3
+	gen cutp80 = vaccine_date2 + 7 if vaccine_type2 == 3
+	gen cutp81 = vaccine_date2 + 14	if vaccine_type2 == 3
+	gen cutp82 = vaccine_date2 + 21	if vaccine_type2 == 3
+	gen cutp83 = vaccine_date2 + 28 if vaccine_type2 == 3
+
+* Vaccine third dose  (Moderna)
+	gen cutp84 = vaccine_date3 - 29 if vaccine_type3 == 3
+	gen cutp85 = vaccine_date3 - 1 if vaccine_type3 == 3	   
+	gen cutp86 = vaccine_date3 if vaccine_type3 == 3
+	gen cutp87 = vaccine_date3 + 7 if vaccine_type3 == 3
+	gen cutp88 = vaccine_date3 + 14	if vaccine_type3 == 3
+	gen cutp89 = vaccine_date3 + 21	if vaccine_type3 == 3
+	gen cutp90 = vaccine_date3 + 28	if vaccine_type3 == 3
+	
+* Covid positive test	
+	gen cutp91 = date_positive - 29
+	gen cutp92 = date_positive - 1
+	gen cutp93 = date_positive 
+	gen cutp94 = date_positive + 7
+	gen cutp95 = date_positive + 14	
+	gen cutp96 = date_positive + 21	
+	gen cutp97 = date_positive + 28		
+	
+	format %td cutp*	
+  
+  
+*create a comma separated list of time group cut points
+	local nmonth = 25				//number of cut points
+	local a=cutp3
+	local b=`nmonth'+2
+	while `b'>3 {
+		local c = cutp`b'
+		local d = ",`c'`d'"
+		local b = `b' - 1
+	}
+	local a = "`a'`d'"
+	
+
+************************************************
+* Overlapping period: if pre-risk of dose n overlap
+* with risk of dose n-1, use risk period of dose n-1
+************************************************
+*Oxford
+	foreach j in 29 30 31 32 33 34 {
+					replace cutp`j' = vaccine_date2 - 29 if cutp`j' >= vaccine_date2 - 28 & cutp`j' <= vaccine_date2 + 6 & vaccine_type2 == 1
+					replace cutp`j' = . if cutp`j' > cutp37
+	} 
+	
+	foreach j in 36 37 38 39 40 41 {
+				replace cutp`j' = vaccine_date3 - 29 if cutp`j' >= vaccine_date3 - 28 & cutp`j' <= vaccine_date3 + 6 & vaccine_type3 == 1
+				replace cutp`j' = . if cutp`j' > cutp44
+} 
+*Pfizer
+	foreach j in 50 51 52 53 54 55 {
+					replace cutp`j' = vaccine_date2 - 29 if cutp`j' >= vaccine_date2 - 28 & cutp`j' <= vaccine_date2 + 6 & vaccine_type2 == 2
+					replace cutp`j' = . if cutp`j' > cutp58
+	} 
+	
+	foreach j in 57 58 59 60 61 62 {
+				replace cutp`j' = vaccine_date3 - 29 if cutp`j' >= vaccine_date3 - 28 & cutp`j' <= vaccine_date3 + 6 & vaccine_type3 == 2
+				replace cutp`j' = . if cutp`j' > cutp65
+} 
+*Moderna
+	foreach j in 71 72 73 74 75 76 {
+					replace cutp`j' = vaccine_date2 - 29 if cutp`j' >= vaccine_date2 - 28 & cutp`j' <= vaccine_date2 + 6 & vaccine_type2 == 3
+					replace cutp`j' = . if cutp`j' > cutp79
+	} 
+	
+	foreach j in 78 79 80 81 82 83 {
+				replace cutp`j' = vaccine_date3 - 29 if cutp`j' >= vaccine_date3 - 28 & cutp`j' <= vaccine_date3 + 6 & vaccine_type3 == 3
+				replace cutp`j' = . if cutp`j' > cutp86
+} 
+
+
+*fix cutpoints to within study observation period. note missing cutpoints where no treatment episode for that drug now get left as missing
+	foreach var of varlist cutp* {
+		replace `var' = cutp1 if `var' < cutp1
+		replace `var' = cutp2 if `var' > cutp2 & `var'~=.
+	}
+
+	
+*reshape
+	sort  nimspatid `y'_date
+	reshape long cutp, i(nimspatid ) j(type)
+	sort nimspatid `y'_date cutp type
+	display "here"
+	drop if cutp == .   
+	
+*number of adverse events within each interval
+	bys nimspatid: gen int nevents = 1 if `y'_date > cutp[_n-1]+0.5 & `y'_date <= cutp[_n]+0.5
+
+	collapse (sum) nevents (min) `y'_date vaccine_* date_positive `y'_ons, by(nimspatid cutp type)
+	lab var nevent "number of events"
+	
+*length of intervals
+	by nimspatid (cutp), sort: gen int interval = cutp[_n] - cutp[_n-1]
+
+*generate months
+	by nimspatid: gen int week = irecode(cutp, `a')
+	label var week "two-week periods 01 December 2020 - 15 November 2021" 
+	tab week	
+	format cutp %td
+	
+*****************************
+* Generate exposure groups
+*****************************
+
+*Exposure 1: Vaccine - first, second and third dose for Baseline;-28-1; 0; 1-7; 2-14; 15-21; 22-28
+*Oxford
+	generate exposed1 = type -`nmonth' - 3 if type>=`nmonth'+ 3 & type <= `nmonth'+ 23 
+	count if exposed1 >= .
+	local nmiss = r(N)
+	local nchange = 1
+	while `nchange' > 0 {
+	by nimspatid: replace exposed1 = exposed1[_n+1] if exposed1>=.
+	count if exposed1>=.
+	local nchange = `nmiss'-r(N)
+	local nmiss = r(N)
+    }
+	mvencode exposed1,mv(0) override	
+
+	lab var exposed1 "Oxford"
+
+*Pfizer
+	generate exposed2 = type -`nmonth' - 24 if type>=`nmonth'+ 24 & type <= `nmonth'+ 44 
+	count if exposed2 >= .
+	local nmiss = r(N)
+	local nchange = 1
+	while `nchange' > 0 {
+	by nimspatid: replace exposed2 = exposed2[_n+1] if exposed2>=.
+	count if exposed2>=.
+	local nchange = `nmiss'-r(N)
+	local nmiss = r(N)
+    }
+	mvencode exposed2,mv(0) override
+
+	lab var exposed2 "Pfizer"
+	
+*Moderna
+	generate exposed3 = type -`nmonth' - 45 if type>=`nmonth'+ 45 & type <= `nmonth'+ 65
+	count if exposed3 >= .
+	local nmiss = r(N)
+	local nchange = 1
+	while `nchange' > 0 {
+	by nimspatid: replace exposed3 = exposed3[_n+1] if exposed3>=.
+	count if exposed3>=.
+	local nchange = `nmiss'-r(N)
+	local nmiss = r(N)
+    }
+	mvencode exposed3,mv(0) override
+
+	lab var exposed3 "Moderna"
+
+*Baseline together
+qui {
+	foreach x in 1 2 3 {
+		replace exposed`x'=0 if exposed`x'==7 |	exposed`x'==14 	//baseline together
+		replace exposed`x'=7 if exposed`x'==8		  //prerisk 2 dose
+		replace exposed`x'=8 if exposed`x'==9		  //0 2d
+		replace exposed`x'=9 if exposed`x'==10 		//1-7 2d
+		replace exposed`x'=10 if exposed`x'==11 	//8-14 2d
+		replace exposed`x'=11 if exposed`x'==12 	//15-22 2d
+		replace exposed`x'=12 if exposed`x'==13 	//23-28 2d
+		replace exposed`x'=13 if exposed`x'==15 	//prerisk 3 dose
+		replace exposed`x'=14 if exposed`x'==16		//0 2d
+		replace exposed`x'=15 if exposed`x'==17		//1-7 2d
+		replace exposed`x'=16 if exposed`x'==18 	//8-14 2d
+		replace exposed`x'=17 if exposed`x'==19 	//15-22 2d
+		replace exposed`x'=18 if exposed`x'==20 	//23-28 2d
+		
+		lab define exposed`x' 0 "baseline" 1 "-28-1 days: 1dose" 2 "0 day: 1dose" 3 "1-7 days: 1dose" 4 "8-15 days: 1dose" 5 "15-21 days: 1dose" 6 "22-28 days: 1dose"  7 "-28-1 days: 2dose" 8 "0 day: 2dose" 9 "1-7 days: 2dose" 10 "8-15 days: 2dose" 11 "15-21 days: 2dose" 12 "22-28 days: 2dose" 13 "-28-1 days: 3dose" 14 "0 day: 3dose" 15 "1-7 days: 3dose" 16 "8-15 days: 3dose" 17 "15-21 days: 3dose" 18 "22-28 days: 3dose" 
+		lab values exposed`x' exposed`x'
+	}
+ 
+}
+
+*Covid   
+	generate exposed4 = type-`nmonth' - 66 if type>=`nmonth' + 66 & type <= `nmonth' + 72  
+	count if exposed4 >= .
+	local nmiss = r(N)
+	local nchange = 1
+	while `nchange'> 0 {
+	by nimspatid: replace exposed4 = exposed4[_n+1] if exposed4 >= .
+	count if exposed4 >= .
+	local nchange = `nmiss'-r(N)
+	local nmiss = r(N)
+	  }   
+	mvencode exposed4, mv(0) override
+	
+	label define exposed4 0 "Baseline covid " 1 "covid-28 to -1:dose 1" 2 "covid 0 days:dose 1" 3 "covid 1-7 days: dose 1"  4 "covid 8-14 days: dose 1" 5 "covid 15-21 days: dose 1" 6 "covid 22-28 days: dose 1" 
+	label values exposed4 exposed4
+	
+	lab var exposed4 "Covid"
+		
+	drop if interval ==0 | interval==.
+	gen loginterval=log(interval)
+
+save caseseries\OX107_caseseries_nims5_`y'_3dose, replace
+}
+	

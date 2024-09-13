@@ -1,0 +1,225 @@
+/*
+filename 	OX107_sccs_subgroups.do
+author 		MP/JHC/CC 
+date 		  5.1.2022
+notes		  specify indicator variable for subgroup analysis
+*/
+
+local m = m_loop
+
+	foreach mt in $all_data {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1
+		}
+		}
+	
+		foreach mt in $female_data {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if sex1 == 0
+		}
+		}
+		
+		foreach mt in $male_data {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if sex1 == 1
+		}
+		}
+		
+		foreach mt in $young_data {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if ageband1 == 1 
+		}
+		}
+		
+		foreach mt in $old_data {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if ageband1 == 2
+		}
+		}
+		
+		foreach mt in $no_covid {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if covid_vaccine == 0
+		}
+		}
+		
+		foreach mt in $covid_prior {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if covid_vaccine == 1
+		}
+		}
+		
+		foreach mt in $covid_post {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if covid_vaccine == 2 | covid_vaccine == 3 | covid_vaccine == 4
+		}
+		}
+	
+		foreach mt in $lagdoses_less {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if doses_3weeks == 1
+		}
+		}
+		
+		foreach mt in $lagdoses_more {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if doses_3weeks == 2 
+		}
+		}
+	
+		foreach mt in $no_deaths {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if event_death == 0
+		}
+		}
+		
+		foreach mt in $no_dose1 {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 
+				replace subgroup = 0 if event_1dose == 1
+		}
+		}
+		
+		foreach mt in $no_dose2 {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 
+				replace subgroup = 0 if event_2dose == 1 | event_1dose == 1
+		}
+		}
+		
+		foreach mt in $no_prerisk {
+			if `m' == `mt'{
+				global exposed_var = "$group1_var"
+				global set_var = "$group2_var"
+				cap drop subgroup
+				gen subgroup = 1 
+		}
+		}
+		
+		
+		foreach mt in $oxford_12 {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if oxford_dose12 == 1
+		}
+		}
+		
+		foreach mt in $pfizer_12 {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if pfizer_dose12 == 1
+		}
+		}
+		
+		foreach mt in $moderna_12 {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if moderna_dose12 == 1
+		}
+		}
+	
+		foreach mt in $female_young_data {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if sex1 == 0 & ageband1 == 1
+		}
+		}
+		
+		foreach mt in $male_young_data {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if sex1 == 1 & ageband1 == 1
+		}
+		}
+		
+		
+		foreach mt in $female_old_data {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if sex1 == 0 & ageband1 == 2
+		}
+		}
+				
+		foreach mt in $male_old_data {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if sex1 == 1 & ageband1 == 2
+		}
+		}
+	
+		foreach mt in $less_18 {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if ageband2 == 1 
+		}
+		}
+		
+		foreach mt in $betwen_18_39 {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if ageband2 == 2
+		}
+		}
+		
+		foreach mt in $older_39 {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if ageband2 == 3
+		}
+		}
+		
+			
+		foreach mt in $male_less_18 {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if sex1 == 1 & ageband2 == 1 
+		}
+		}
+		
+		foreach mt in $male_betwen_18_39 {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if sex1 == 1 & ageband2 == 2
+		}
+		}
+		
+		foreach mt in $male_older_39 {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if sex1 == 1 & ageband2 == 3
+		}
+		}
+		
+		foreach mt in $female_less_18 {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if sex1 == 0 & ageband2 == 1 
+		}
+		}
+		
+		foreach mt in $female_betwen_18_39 {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if sex1 == 0 & ageband2 == 2
+		}
+		}
+		
+		foreach mt in $female_older_39 {
+			if `m' == `mt'{
+				cap drop subgroup
+				gen subgroup = 1 if sex1 == 0 & ageband2 == 3
+		}
+		}	

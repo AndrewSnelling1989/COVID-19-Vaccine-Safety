@@ -1,0 +1,64 @@
+/*
+filename 	OX107_sccs_models.do
+author 		MP/JHC/CC 
+date 		5.1.2022
+*notes		"exposed" variables have day of vaccination as separate variable
+			exposed 1 = Oxford
+			exposed 2 = Pfizer
+			exposed 3 = Moderna
+			exposed 4 = Covid
+			update for sample data (5.1.2022)
+			
+// MODELS (vaccines and covid included in each model)
+*model 1		Analysis with only vaccinated (main)
+*model 20	    Analysis 1-28 days for main results
+*/
+	
+** Define globals in OX107_sample_globals
+foreach y in $study_outcomes_all {
+
+  ** Open dataset
+	use caseseries\OX107_caseseries_nims5_`y'_3dose, clear
+	
+	*** Overall 28 days 	
+	do dofiles\OX107_caseseries_variables.do
+	
+  foreach m in $models_all {
+	
+  ** Global risk interval 	
+	global exposed_var = "i.exposed1 i.exposed2 i.exposed3 i.exposed4 i.week"
+	global set_var = "i.set1 i.set2 i.set3 i.set4 i.week"
+
+	** Weekly risk set
+		if `m' == 1 {
+		
+		capture parmby "xtpoisson nevents $exposed_var, fe i(nimspatid) offset(loginterval) irr level(95)",saving(models\OX107_cs_model_`m'_`y'_3dose,replace)	
+		
+		if _rc != 0 {
+		continue
+	}
+	
+		if _rc == 0 {
+		estimates save estimates\OX107_cs_model_`m'_`y'_3dose,replace
+	}
+	}
+	
+	** Overall 1-28 days
+		if `m' == 20 {			
+		
+		capture parmby "xtpoisson nevents $set_var, fe i(nimspatid) offset(loginterval) irr level(95)",saving(models\OX107_cs_model_`m'_`y'_3dose,replace)
+		
+		if _rc != 0 {
+		continue
+	}
+	
+		if _rc == 0 {
+		estimates save estimates\OX107_cs_model_`m'_`y'_3dose,replace
+	}
+	}
+	}
+
+	global drop exposed_var set_var
+}
+
+

@@ -1,0 +1,89 @@
+##############################################################
+# filename	OX107_create_simulated_data_R
+# author		MP
+# date		  06.01.2022
+# notes 		create a simulated data 
+##############################################################
+
+
+#Libraries
+library(SCCS)
+library(readr)
+
+#Set up working directory
+setwd("OX107_sample")
+
+#Set up path of data folder
+data_folder_path1 = "OX107_sample/"
+
+#Set startdate and endate
+startdate = "01/12/2020"
+endate = "15/11/2021"
+dstart = as.POSIXct(startdate, format = "%d/%m/%Y", origin = "1970-01-01") 
+dend = as.POSIXlt(endate, format = "%d/%m/%Y", origin = "1970-01-01")   
+astart = round(as.numeric(dstart)/86400)
+aend = round(as.numeric(dend)/86400)
+
+#Create simulated dataset
+
+## sample size and patid
+n = 3000
+np = 100
+nd = 100
+nimspatid2 = 1:n 
+
+## vaccine dates 
+vaccine_date1 = sample(seq(as.Date(startdate,  format = "%d/%m/%Y"), as.Date(endate,  format = "%d/%m/%Y"), by="day"), n, replace = T)
+vaccine_date2 = sample(seq(as.Date(startdate,  format = "%d/%m/%Y"), as.Date(endate,  format = "%d/%m/%Y"), by="day"), n, replace = T)
+vaccine_date3 = sample(seq(as.Date(startdate,  format = "%d/%m/%Y"), as.Date(endate,  format = "%d/%m/%Y"), by="day"), n, replace = T)
+vaccine_date2[which(vaccine_date1 + 30 >= vaccine_date2)] = NA
+vaccine_date3[which(vaccine_date1 + 90 >= vaccine_date3)] = NA
+vaccine_date3[which(vaccine_date2 + 30 >= vaccine_date3)] = NA
+vaccine_date3[which(is.na(vaccine_date2))] = NA
+
+## vaccine types
+vaccine_type1 = sample(c("Oxford", "Pfizer", "Moderna"), n, replace = T)
+vaccine_type2 = sample(c("Oxford", "Pfizer", "Moderna"), n, replace = T)
+vaccine_type3 = sample(c("Oxford", "Pfizer", "Moderna"), n, replace = T)
+vaccine_type2[which(is.na(vaccine_date2))] = NA
+vaccine_type3[which(is.na(vaccine_date3))] = NA
+
+## covid dates
+date_positive = sample(seq(as.Date(startdate,  format = "%d/%m/%Y"), as.Date(endate,  format = "%d/%m/%Y"), by="day"), np, replace = T)
+
+## events date
+sample_date = sample(seq(as.Date(startdate,  format = "%d/%m/%Y"), as.Date(endate,  format = "%d/%m/%Y"), by="day"), n, replace = T)
+
+## deaths date
+onsdateofdeath = sample(seq(as.Date(startdate,  format = "%d/%m/%Y"), as.Date(endate,  format = "%d/%m/%Y"), by="day"), nd, replace = T)
+onsdateofdeath[which(onsdateofdeath < vaccine_date1)] = NA
+onsdateofdeath[which(onsdateofdeath < vaccine_date2)] = NA
+onsdateofdeath[which(onsdateofdeath < vaccine_date3)] = NA
+onsdateofdeath[which(onsdateofdeath < date_positive)] = NA
+onsdateofdeath[which(onsdateofdeath < sample_date)] = NA
+
+## deaths
+sample_ons = numeric(n)
+nd = length(which(!is.na(onsdateofdeath)))
+ndo = sample(1:nd, 1)
+dead_ons = sample(which(!is.na(onsdateofdeath)), ndo)
+sample_ons[dead_ons] = 1
+sample_ons[which(sample_ons==1)]
+
+## vaccine dates format
+vaccine_date1 = format(as.Date(vaccine_date1, "%Y/%m/%d"), "%d/%m/%Y")
+vaccine_date2 = format(as.Date(vaccine_date2, "%Y/%m/%d"), "%d/%m/%Y")
+vaccine_date3 = format(as.Date(vaccine_date3, "%Y/%m/%d"), "%d/%m/%Y")
+date_positive = format(as.Date(date_positive, "%Y/%m/%d"), "%d/%m/%Y")
+sample_date = format(as.Date(sample_date, "%Y/%m/%d"), "%d/%m/%Y")
+onsdateofdeath = format(as.Date(onsdateofdeath, "%Y/%m/%d"), "%d/%m/%Y")
+
+## period of observation (all 1s)
+sample_period1 = rep(1, n)
+
+## as dataframe
+sample_sccs = as.data.frame(cbind(nimspatid2, vaccine_date1, vaccine_date2, vaccine_date3, 
+                                  vaccine_type1, vaccine_type2, vaccine_type3, date_positive, sample_date, onsdateofdeath, sample_ons, sample_period1))
+
+## save it
+write.csv(sample_sccs, paste(data_folder_path1, "sample_sccs.csv", sep= ""),row.names = F)
