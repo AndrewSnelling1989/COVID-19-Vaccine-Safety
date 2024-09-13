@@ -36,7 +36,7 @@ Statistical code for Covid-19 vaccine safety analyses
 >
 >**Paper authors:** Martina Patone, Xue W Mei, Lahiru Handunnetthi, Sharon Dixon, Francesco Zaccardi, Manu Shankar-Hari, Peter Watkinson, Kamlesh Khunti, Anthony Harnden, Carol A C Coupland, Keith M Channon, Nicholas L Mills, Aziz Sheikh, Julia Hippisley-Cox
 >
->**Data source:** https://www.medrxiv.org/content/10.1101/2021.12.23.21268276v1
+>**Data source:** https://www.ahajournals.org/doi/10.1161/CIRCULATIONAHA.122.059970
 
 ## Code details
 
