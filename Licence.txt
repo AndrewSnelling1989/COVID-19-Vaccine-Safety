@@ -64,5 +64,5 @@ understanding or agreement between them relating to the Software.
 and construed in accordance with, the law of England. The Licensee irrevocably submits to the exclusive jurisdiction of the English courts
 for any dispute or claim that arises out of or in connection with these licence terms.
 
-If you are interested in using the Software commercially, please contact Oxford University Innovation Limited to negotiate a licence. Contact details are enquiries@innovation.ox.ac.uk quoting reference OUI 21633.
+If you are interested in using the Software commercially, please contact Oxford University Innovation Limited to negotiate a licence. Contact details are enquiries@innovation.ox.ac.uk.
 
