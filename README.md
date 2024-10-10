@@ -1,8 +1,6 @@
 # COVID-19-vaccine-safety
 Statistical code for Covid-19 vaccine safety analyses
 
-DOI: 10.5281/zenodo.13760918
-
 ## Papers details 
 ### Paper 1
 >**Title:** Risk of thrombocytopenia and thromboembolism after covid-19 vaccination and SARS-CoV-2 positive testing: self-controlled case series study
